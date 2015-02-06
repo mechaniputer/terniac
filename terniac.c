@@ -18,6 +18,11 @@ int mem[RANGE][WIDTH];
 int pc=0;
 int instructions=0;
 
+/* Globals for verbosity flags */
+int dumpmem = 0;
+int flow = 0;
+int regdisp = 0;
+
 /* Convert tryte integer array to an integer */
 int ternDec(int * tryte){
 	int i;
@@ -33,12 +38,8 @@ int ternDec(int * tryte){
 /* Decides and executes conditional skips */
 void condSkip(int * tryte){
 	int i;
-	dispTryte(tryte);
 	if(0<=ternDec(tryte)){
-		printf(" is Nonnegative, Skipping next Instruction\n");
 		pc+=2;
-	}else{
-		printf(" is Negative, not skipping\n");
 	}
 	pc++;
 	return;
@@ -56,7 +57,6 @@ void invTryte(int * tryte){
 
 /* Places a new value in the program counter */
 void JP(){
-	printf(" to %d\n",ternDec(mem[pc+1]));
 	/* Jump to address in following mem location */
 	pc=364+ternDec(mem[pc+1]);
 	return;
@@ -167,124 +167,117 @@ int load(char * filename){
 	return 0;
 }
 
-/* This is the messy part. This is what happens when you copy-paste one thing that works to make the rest of it work */
+/* This is the messy part. This is what happens when you copy-paste one thing that works make the rest of it work */
 int execute(int * tryte){
 	int i;
 
 	/* load instructions */
 	if (tryte[0]==-1&&tryte[1]==-1&&tryte[2]==-1){
-		printf("LD A ");
+		if(flow) puts("LD A ");
 		for(i=0;i<WIDTH;i++){
 			a[i]=mem[364+ternDec(mem[pc+1])][i];
 		}
-		dispTryte(b);
-		printf("\n");
 		pc+=2;
 	}else if (tryte[0]==0&&tryte[1]==-1&&tryte[2]==-1){
-		printf("LD B ");
+		if(flow) puts("LD B ");
 		for(i=0;i<WIDTH;i++){
 			b[i]=mem[364+ternDec(mem[pc+1])][i];
 		}
-		dispTryte(b);
-		printf("\n");
 		pc+=2;
 	}else if (tryte[0]==1&&tryte[1]==-1&&tryte[2]==-1){
-		printf("LD C ");
+		if(flow) puts("LD C ");
 		for(i=0;i<WIDTH;i++){
 			c[i]=mem[364+ternDec(mem[pc+1])][i];
 		}
-		dispTryte(b);
-		printf("\n");
 		pc+=2;
 
 	/* increment instructions */
 	}else if (tryte[0]==-1 &&tryte[1]==0 &&tryte[2]==-1){
-		puts("INC A");
+		if(flow) puts("INC A");
 		incrTryte(a);
 		pc+=1;
 	}else if (tryte[0]==0 &&tryte[1]==0 &&tryte[2]==-1){
-		puts("INC B");
+		if(flow) puts("INC B");
 		incrTryte(b);
 		pc+=1;
 	}else if (tryte[0]==1 &&tryte[1]==0 &&tryte[2]==-1){
-		puts("INC C");
+		if(flow) puts("INC C");
 		incrTryte(c);
 		pc+=1;
 	/* conditional skip instructions */
 	}else if (tryte[0]==-1&&tryte[1]==1&&tryte[2]==-1){
-		printf("SKP A ");
+		if(flow) puts("SKP A ");
 		condSkip(a);
 	}else if (tryte[0]==0&&tryte[1]==1&&tryte[2]==-1){
-		printf("SKP B ");
+		if(flow) puts("SKP B ");
 		condSkip(b);
 	}else if (tryte[0]==1&&tryte[1]==1&&tryte[2]==-1){
-		printf("SKP C ");
+		if(flow) puts("SKP C ");
 		condSkip(c);
 
 	/* 3 ADD instructions */
 	}else if(tryte[0]==-1 &&tryte[1]==1 &&tryte[2]==1){
-		puts("ADD A");
+		if(flow) puts("ADD A");
 		addTryte(a,mem[364+ternDec(mem[pc+1])]);
 		pc+=2;
 
 	}else if(tryte[0]==0 &&tryte[1]==1 &&tryte[2]==1){
-		puts("ADD B");
+		if(flow) puts("ADD B");
 		addTryte(b,mem[364+ternDec(mem[pc+1])]);
 		pc+=2;
 
 	}else if(tryte[0]==1 &&tryte[1]==1 &&tryte[2]==1){
-		puts("ADD C");
+		if(flow) puts("ADD C");
 		addTryte(c,mem[364+ternDec(mem[pc+1])]);
 		pc+=2;
 
-
 	/* 3 STO instructions */
 	}else if(tryte[0]==-1 &&tryte[1]==-1 &&tryte[2]==1){
-		puts("STO A");
+		if(flow) puts("STO A");
 		STO(a,mem[364+ternDec(mem[pc+1])]);
 		pc+=2;
 	}else if(tryte[0]==0 &&tryte[1]==-1 &&tryte[2]==1){
-		printf("STO B");
-		printf(" at %d\n",364+ternDec(mem[pc+1]));
-
+		if(flow) printf("STO B");
 		STO(b,mem[364+ternDec(mem[pc+1])]);
 		pc+=2;
 	}else if(tryte[0]==1 &&tryte[1]==-1 &&tryte[2]==1){
-		puts("STO C");
+		if(flow) puts("STO C");
 		STO(c,mem[364+ternDec(mem[pc+1])]);
 		pc+=2;
 
 	/* HALT Instruction */
 	}else if(tryte[0]==-1 &&tryte[1]==0 &&tryte[2]==0){
-		puts("HALT");
+		if(flow) puts("HALT");
 		return 1;
 
 	/* Bitwise invert instructions */
 	}else if(tryte[0]==-1 &&tryte[1]==1 &&tryte[2]==0){
-		puts("INV A");
+		if(flow) puts("INV A");
 		invTryte(a);
 		pc++;
 	}else if(tryte[0]==0 &&tryte[1]==1 &&tryte[2]==0){
-		puts("INV B");
+		if(flow) puts("INV B");
 		invTryte(b);
 		pc++;
 	}else if(tryte[0]==1 &&tryte[1]==1 &&tryte[2]==0){
-		puts("INV C");
+		if(flow) puts("INV C");
 		invTryte(c);
 		pc++;
 
 	/* Unconditional JP instruction */
 	}else if (tryte[0]==1&&tryte[1]==0&&tryte[2]==0){
-		printf("JP");
+		if(flow) puts("JP");
 		JP();
 		
 	/* NOOP instruction */
 	}else if (tryte[0]==0&&tryte[1]==0&&tryte[2]==0){
-		puts("NOOP");
+		if(flow) puts("NOOP");
 		pc++;
 	}else{ 
-		dispTryte(tryte);
-		puts("?");
+		if(flow){
+			dispTryte(tryte);
+			puts("?");
+		}
 		pc++;
 	}
 
@@ -301,14 +294,35 @@ void dump(){
 	return;
 }
 
+void printhelp(){
+	puts("Specify input ternary executable as first argument");
+	puts("Valid options are: -dump -flow -reg");
+}
+
 int main(int argc, char *argv[]){
 	int i=0;
 	int quit=0;
+
+	/* Verbosity settings */
+	int j;
+	
+	for (j = 1; j < argc; j++) {
+		if (!strcmp(argv[j],"-dump"))
+			dumpmem = 1;
+		else if (!strcmp(argv[j],"-flow"))
+			flow = 1;
+		else if (!strcmp(argv[j],"-reg"))
+			regdisp = 1;
+		else if (!strcmp(argv[j],"-help")){
+			printhelp();
+			return 0;
+		}
+	}
+	
 	printf("Blanking memory\n");
 	zeroTryte(a);
 	zeroTryte(b);
 	zeroTryte(c);
-
 	for(i=0;i<RANGE;i++){
 		zeroTryte(mem[i]);
 	}
@@ -317,11 +331,11 @@ int main(int argc, char *argv[]){
 	load(argv[1]);
 
 	/* Show contents of whole memory space */
-	dump();
+	if(dumpmem) dump();
 
-	printf("\nBeginning execution\n");
+	printf("\nBeginning execution...\n");
 	while(pc<RANGE){
-		printf("%d: ",pc-364);
+		if(flow) printf("%d: ",pc-364);
 		quit=execute(mem[pc]);
 		/* This is just to get an idea of a program's efficiency */
 		instructions++;
@@ -329,20 +343,24 @@ int main(int argc, char *argv[]){
 		if(instructions>=STAHP) assert(0);
 		if(quit==1) break;
 	}
-	printf("END \n\nExecuted %d instructions\n",instructions);
-	puts("REG A");
-	dispTryte(a);
-	i=ternDec(a);
-	printf("  %dd\n",i);
-	puts("REG B");
-	dispTryte(b);
-	i=ternDec(b);
-	printf("  %dd\n",i);
-	puts("REG C");
-	dispTryte(c);
-	i=ternDec(c);
-	printf("  %dd\n\n",i);
-	dump();
+	printf("Execution finished after %d instructions.\n",instructions);
+	if(regdisp){
+		puts("REG A");
+		dispTryte(a);
+		i=ternDec(a);
+		printf("  %dd\n",i);
+		puts("REG B");
+		dispTryte(b);
+		i=ternDec(b);
+		printf("  %dd\n",i);
+		puts("REG C");
+		dispTryte(c);
+		i=ternDec(c);
+		printf("  %dd\n\n",i);
+	}
+	/* Show contents of whole memory space */
+	if(dumpmem) dump();
+	
 	return 0;
 }
 
