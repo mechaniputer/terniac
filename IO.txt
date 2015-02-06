@@ -1,0 +1,35 @@
+This describes the I/O procedure for terniac.
+(At time of writing, this does not yet work, it's just a plan)
+
+The overall idea is MMIO with rudimentary locking.
+
+Reserve two buffers in memory, one for input, one for output.
+Reserve a "lock" tryte for each buffer. (OUTLOCK and INLOCK)
+Reserve a "new" tryte for each buffer. (OUTNEW and INNEW)
+
+To output, the code running on terniac software will:
+	wait until OUTNEW=0
+	set the OUTLOCK to a nonzero value
+	populate the buffer with the outut characters.
+	set OUTNEW to a nonzero value
+	reset OUTLOCK to zero
+
+To display output, the terminal will: 
+	wait until OUTLOCK=0 and OUTNEW=1
+	print and zero each buffer location
+	reset OUTNEW to zero
+
+To input, the terminal will:
+	wait until INNEW=0
+	read text until a newline or until buffer size is reached.
+	set INLOCK to a nonzero value
+	zero the input buffer to remove prior input
+	populate the input buffer with the input characters
+	set INNEW to a nonzero value
+	reset INLOCK to zero
+	
+to read input, the software running on terniac will:
+	wait until INLOCK=0 and INNEW=1
+	read the values from the input buffer
+	reset INNEW to zero
+
