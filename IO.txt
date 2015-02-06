@@ -1,5 +1,5 @@
 This describes the I/O procedure for terniac.
-(At time of writing, this does not yet work, it's just a plan)
+(At time of writing, only output is working)
 
 The overall idea is MMIO with rudimentary locking.
 

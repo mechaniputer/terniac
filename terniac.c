@@ -334,15 +334,35 @@ int main(int argc, char *argv[]){
 	if(dumpmem) dump();
 
 	printf("\nBeginning execution...\n");
+	
+	/* This is the main loop */
 	while(pc<RANGE){
 		if(flow) printf("%d: ",pc-364);
 		quit=execute(mem[pc]);
 		/* This is just to get an idea of a program's efficiency */
 		instructions++;
+		
+		/* *** Terminal Output Section *** */
+		/* 728 is largest index of mem */
+		/* RANGE-11 is start of out buffer */
+		/* RANGE-12 is OUTNEW */
+		/* RANGE-13 is OUTLOCK */
+		if((0!=ternDec(mem[RANGE-12])) && (0==ternDec(mem[RANGE-13]))) {	/* Got some output and not locked */
+			zeroTryte(mem[RANGE-12]);
+			printf("OUTPUT: ");
+			for(i=RANGE-10;i<RANGE;i++){
+				printf("%d,",ternDec(mem[i]));
+				zeroTryte(mem[i]);
+			}
+			printf("\n");
+		}
+		
 		/* This stops it if it runs too long */
 		if(instructions>=STAHP) assert(0);
 		if(quit==1) break;
+		
 	}
+	
 	printf("Execution finished after %d instructions.\n",instructions);
 	if(regdisp){
 		puts("REG A");
