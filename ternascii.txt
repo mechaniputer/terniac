@@ -1,0 +1,78 @@
+Characters will be encoded as 5 trits each.
+Since Terniac is currently a 6 trit machine this leaves only one bit unused.
+On a larger 9 trit machine this leaves room for 4 instruction trits and a character/symbol in the same tryte.
+
+5 trits allow for numbers from negative 121 to 121 for a total of 243 symbols.
+
+Below are the decimal encodings for all of the characters:
+
+Num	Symbol
+
+(...)
+
+-41	[
+-40	{
+-39	<
+-38	(
+-37	/
+-36	-
+-35	z
+-34	y
+-33	x
+-32	w
+
+(...) Rest of lowercase letters
+
+-14 e
+-13 d
+-12 c
+-11	b
+-10	a
+-9	=
+-8	*
+-7	&
+-6	^
+-5	%
+-4	$
+-3	#
+-2	@
+-1	!
+0	0
+1	1
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	A
+11	B
+12	C
+13	D
+14	E
+
+(...) Rest of uppercase letters
+
+32	W
+33	X
+34	Y
+35	Z
+36	+
+37	*
+38	)
+39	>
+40	}
+41	]
+
+(...)
+
+81	<SPACE>
+82	<TAB>
+83	<NEWLINE>
+
+(...)
+
+121	NULL
+
