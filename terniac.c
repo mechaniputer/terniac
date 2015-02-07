@@ -1,5 +1,9 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 
 #define WIDTH 6
 #define RANGE 729
@@ -8,13 +12,14 @@
 /* TODO 
  * Memory-mapped I/O
  * Cleanup
- * Commandline options */
+ * Upgrade WIDTH to 9 trits */
 
 char inp[WIDTH];
 int a[WIDTH];
 int b[WIDTH];
 int c[WIDTH];
 int mem[RANGE][WIDTH];
+int *ShmPTR;
 int pc=0;
 int instructions=0;
 
@@ -302,10 +307,12 @@ void printhelp(){
 int main(int argc, char *argv[]){
 	int i=0;
 	int quit=0;
+	int pid;
+	int ShmID;
+	int status;
 
 	/* Verbosity settings */
 	int j;
-	
 	for (j = 1; j < argc; j++) {
 		if (!strcmp(argv[j],"-dump"))
 			dumpmem = 1;
@@ -333,7 +340,52 @@ int main(int argc, char *argv[]){
 	/* Show contents of whole memory space */
 	if(dumpmem) dump();
 
-	printf("\nBeginning execution...\n");
+	/* Setup Shared Memory */
+	ShmID = shmget(IPC_PRIVATE, 12*WIDTH*sizeof(int), IPC_CREAT | 0666);
+	if (ShmID < 0) {
+		printf("*** shmget error (server) ***\n");
+		exit(1);
+	}
+	puts("Shared memory allocated");
+	ShmPTR = (int *) shmat(ShmID, NULL, 0);
+	if ((int) ShmPTR == -1) {
+		printf("*** shmat error (server) ***\n");
+		exit(1);
+	}
+	puts("Shared memory attached");
+
+	/* TODO: Now we need to make the shared memory replace parts of mem[][] */
+	/* Since mem is a 2D array and not an array of pointers, the only way   */
+	/* might be to keep it synced with a special function                   */
+
+	/* Fork a term */
+	puts("Forking Ternimal");
+	pid=fork();
+	if(pid < 0) {
+		puts("Fork Error (server)");
+		exit(1);
+	}else if(pid == 0) {
+		puts("I'm the ternimal!");
+		while(1){
+			/* *** Terminal Output Section *** */
+			/* 728 is largest index of mem */
+			/* RANGE-11 is start of out buffer */
+			/* RANGE-12 is OUTNEW */
+			/* RANGE-13 is OUTLOCK */
+			if((0!=ternDec(mem[RANGE-12])) && (0==ternDec(mem[RANGE-13]))) {
+				zeroTryte(mem[RANGE-12]);
+				printf("OUTPUT: ");
+				for(i=RANGE-10;i<RANGE;i++){
+					printf("%d,",ternDec(mem[i]));
+					zeroTryte(mem[i]);
+				}
+				printf("\n");
+			}
+		}
+		exit(0);
+	}
+	sleep(1);
+	puts("Beginning execution...");
 	
 	/* This is the main loop */
 	while(pc<RANGE){
@@ -342,20 +394,6 @@ int main(int argc, char *argv[]){
 		/* This is just to get an idea of a program's efficiency */
 		instructions++;
 		
-		/* *** Terminal Output Section *** */
-		/* 728 is largest index of mem */
-		/* RANGE-11 is start of out buffer */
-		/* RANGE-12 is OUTNEW */
-		/* RANGE-13 is OUTLOCK */
-		if((0!=ternDec(mem[RANGE-12])) && (0==ternDec(mem[RANGE-13]))) {	/* Got some output and not locked */
-			zeroTryte(mem[RANGE-12]);
-			printf("OUTPUT: ");
-			for(i=RANGE-10;i<RANGE;i++){
-				printf("%d,",ternDec(mem[i]));
-				zeroTryte(mem[i]);
-			}
-			printf("\n");
-		}
 		
 		/* This stops it if it runs too long */
 		if(instructions>=STAHP) assert(0);
