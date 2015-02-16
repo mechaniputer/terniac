@@ -1,11 +1,10 @@
 terniac
 =======
 
-Sloppy but functional ternary computer sim
-Terniac is a rudimentary simulation of an extremely basic ternary computer. It is Turing-complete, but not necessarily efficient or well-written.
+Terniac is a simulation of an extremely basic ternary computer. It is Turing-complete, but not necessarily efficient.
 
-Terniac's machine language uses only the first three trits at each memory location.
-In theory, if other bugs can be solved, it would be easy to extend the data width to 9 trits without changing any instructions.
+Terniac's machine language currently uses only the first three trits at each memory location.
+In theory, it should be easy to extend the data width to 9 trits without changing any existing instructions.
 
 Terniac has a somewhat limited instruction set consisting of ADD, LD, STO, INV, INC, JP, SKP, HALT and NOOP.
 Most of these instructions act on one of the three general-purpose registers, and JP and SKP also act on the program counter.
