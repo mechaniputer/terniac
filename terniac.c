@@ -105,8 +105,22 @@ int execute(int **mem, int *pc, int flow, int *areg, int *breg, int *creg){
 	int *tryte;
 	tryte = mem[*pc];
 
+	/* output instructions */
+	if (tryte[0]==-1&&tryte[1]==-1&&tryte[2]==0){
+		if(flow) puts("OUT A ");
+		printf("PRINT %d\n",tern2dec(areg));
+		*pc+=1;
+	}else if (tryte[0]==0&&tryte[1]==-1&&tryte[2]==0){
+		if(flow) puts("OUT B ");
+		printf("PRINT %d\n",tern2dec(breg));
+		*pc+=1;
+	}else if (tryte[0]==1&&tryte[1]==-1&&tryte[2]==0){
+		if(flow) puts("OUT C ");
+		printf("PRINT %d\n",tern2dec(creg));
+		*pc+=1;
+
 	/* load instructions */
-	if (tryte[0]==-1&&tryte[1]==-1&&tryte[2]==-1){
+	}else if (tryte[0]==-1&&tryte[1]==-1&&tryte[2]==-1){
 		if(flow) puts("LD A ");
 		for(i=0;i<WIDTH;i++){
 			areg[i]=mem[364+tern2dec(mem[*pc+1])][i];
