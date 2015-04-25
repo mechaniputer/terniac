@@ -15,6 +15,98 @@ void dump(int ** mem);
 void load(int **mem, char * filename);
 int execute(int **mem, int *pc, int flow, int *areg, int *breg, int *creg);
 
+int itryte[6];
+
+/* Stores conversion result in global tryte[] */
+void dec2tern(int num){
+        int i;
+
+        for(i=0;i<WIDTH;i++){
+                        itryte[i]=0;
+        }
+                /* 243's place */
+                if(num<0){
+                        if(num<(-81-27-9-3-1)){
+                                itryte[5]=-1;
+                                num+=243;
+                        }
+
+                }else{
+                        if(num>(81+27+9+3+1)){
+                                itryte[5]=1;
+                                num-=243;
+                        }
+                }
+
+                /* 81's place */
+                if(num<0){
+                        if(num<(-27-9-3-1)){
+                                itryte[4]=-1;
+                                num+=81;
+                        }
+                }else{
+                        if(num>(27+9+3+1)){
+                                itryte[4]=1;
+                                num-=81;
+                        }
+
+                }
+       
+                /* 27's place */
+                if(num<0){
+                        if(num<(-9-3-1)){
+                                itryte[3]=-1;
+                                num+=27;
+                        }
+                }else{
+                        if(num>(9+3+1)){
+                                itryte[3]=1;
+                                num-=27;
+                        }
+                }
+                /* 9's place */
+                if(num<0){
+                        if(num<(-3-1)){
+                                itryte[2]=-1;
+                                num+=9;
+                        }
+                }else{
+                        if(num>(3+1)){
+                                itryte[2]=1;
+                                num-=9;
+                        }
+                }
+
+                /* 3's place */
+                if(num<0){
+                        if(num<(-1)){
+                                itryte[1]=-1;
+                                num+=3;
+                        }
+                }else{
+                        if(num>(1)){
+                                itryte[1]=1;
+                                num-=3;
+                        }
+                }
+
+                /* 1's place */
+                if(num<0){
+                        if(num<(0)){
+                                itryte[0]=-1;
+                                num+=1;
+                        }
+                }else{
+                        if(num>(0)){
+                                itryte[0]=1;
+                                num-=1;
+                        }
+                }
+        return;
+}
+
+
+
 int main(int argc, char *argv[]){
 	int i;
 	int quit;
@@ -117,6 +209,36 @@ int execute(int **mem, int *pc, int flow, int *areg, int *breg, int *creg){
 	}else if (tryte[0]==1&&tryte[1]==-1&&tryte[2]==0){
 		if(flow) puts("OUT C ");
 		printf("PRINT %d\n",tern2dec(creg));
+		*pc+=1;
+
+	/* input instructions */
+	}else if (tryte[0]==-1&&tryte[1]==0&&tryte[2]==1){
+		if(flow) puts("IN A ");
+		printf("IN A? :");
+		scanf("%d",&i);
+		dec2tern(i);
+		for(i=0;i<WIDTH;i++){
+			areg[i] = itryte[i];
+		}
+		*pc+=1;
+	}else if (tryte[0]==0&&tryte[1]==0&&tryte[2]==1){
+		if(flow) puts("IN B ");
+		printf("IN B? :");
+		scanf("%d",&i);
+		dec2tern(i);
+		for(i=0;i<WIDTH;i++){
+			breg[i] = itryte[i];
+		}
+		*pc+=1;
+	}else if (tryte[0]==1&&tryte[1]==0&&tryte[2]==1){
+		if(flow) puts("IN C ");
+		scanf("%d",&i);
+		dec2tern(i);
+		for(i=0;i<WIDTH;i++){
+			creg[i] = itryte[i];
+		}
+		*pc+=1;
+
 		*pc+=1;
 
 	/* load instructions */
