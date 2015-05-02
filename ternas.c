@@ -384,13 +384,13 @@ int genLabels(char * str){
 
 int main(){
 	char ch;
-	char str[300][32];
+	char str[330][32];
 	int i=0;
 	int j;
 
 	FILE * f;
 
-	f = fopen("brainfuck.ternas", "r");
+	f = fopen("progs/fucktorial.ternas", "r");
 	assert(f != NULL);
 
 	while(fgets(str[i], 31, f)){

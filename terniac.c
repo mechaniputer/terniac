@@ -8,7 +8,7 @@
 
 #define WIDTH 6
 #define RANGE 729
-#define STAHP 3000
+#define STAHP 500000
 
 void dispTryte(int * tryte);
 void dump(int ** mem);
